@@ -4,6 +4,7 @@ import dotenv from 'dotenv'
 import colors from 'colors'
 import productRoutes from "./routes/productRoutes.js";
 import {errorHandler, notFound} from "./middleware/errorMiddleware.js";
+import userRoutes from "./routes/userRoutes.js";
 
 
 
@@ -13,12 +14,13 @@ mongoose.set('strictQuery', true)
 
 const PORT = 4000
 
-
+app.use(express.json())
 
 app.get('/', (req, res) => {
    res.send('server')
 })
 app.use('/api/products', productRoutes)
+app.use('/api/users', userRoutes)
 
 app.use(notFound)
 
