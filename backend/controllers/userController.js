@@ -32,6 +32,29 @@ export const profileUser = async (req, res) => {
         console.log(e.message)
     }
 }
+export const updateProfileUser = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.userId)
+        if (user){
+            user.name = req.body.name || user.name
+            user.email = req.body.email || user.email
+            if (req.body.password){
+                user.password = req.body.password
+            }
+        }
+        const updatedUser = await user.save()
+        res.json({
+            _id: updatedUser._id,
+            name: updatedUser.name,
+            email: updatedUser.email,
+            isAdmin: updatedUser.isAdmin,
+            token: updatedUser.createJWT()
+        })
+    }catch (e) {
+        res.status(404).json({message: 'Invalid data'})
+        console.log(e.message)
+    }
+}
 export const registerUser = async (req, res) => {
     const {email, password, name} = req.body
     if (!name || !email || !password){
