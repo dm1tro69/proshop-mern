@@ -1,11 +1,13 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {useDispatch, useSelector} from "react-redux";
 import CheckoutSteps from "../components/CheckoutSteps";
 import {Alert, Button, Card, Col, Image, ListGroup, Row} from "react-bootstrap";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
+import {createOrder} from "../actions/orderActions";
 
 const PlaceOrderScreen = () => {
     const dispatch = useDispatch()
+    const navigate = useNavigate()
     const {shippingAddress, paymentMethod, cartItems, } = useSelector(state => state.cart)
     const addDecimal = (num) => {
         return (Math.round(num * 100) / 100).toFixed(2)
@@ -18,9 +20,26 @@ const PlaceOrderScreen = () => {
 
     const totalPrice = Number(itemsPrice) + Number(shippingPrice) + Number(taxPrice)
 
-    const placeOrderHandler = () => {
+    const {order, success, error} = useSelector(state => state.orderCreate)
 
+    const placeOrderHandler = () => {
+        dispatch(createOrder({
+            orderItems: cartItems,
+            shippingAddress,
+            paymentMethod,
+            itemsPrice,
+            shippingPrice,
+            taxPrice,
+            totalPrice
+        }))
     }
+
+    useEffect(()=> {
+        if (success){
+            navigate(`/order/${order._id}`)
+        }
+    }, [success, navigate])
+
     return (
         <>
          <CheckoutSteps step1 step2 step3 step4/>
@@ -101,6 +120,9 @@ const PlaceOrderScreen = () => {
                                     </Col>
                                     <Col>${totalPrice}</Col>
                                 </Row>
+                            </ListGroup.Item>
+                            <ListGroup.Item>
+                                {error && <Alert variant={'danger'}>{error}</Alert>}
                             </ListGroup.Item>
                             <ListGroup.Item>
                                 <Button
